@@ -1,0 +1,46 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: herstory-backend
+  datasource:
+    url: jdbc:h2:mem:herstorydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: c2VjcmV0S2V5Rm9ySEVSU1RPUllCYWNrZW5kQXBwbGljYXRpb25XaXRoU3VjY2Vzc2Z1bEpXVFZhbGlkYXRpb24yMDI2
+  expiration: 86400000 # 24 hours in ms
+
+oauth2:
+  kakao:
+    client-id: e28fd538d6b49c7fb7634bf9f05b0796
+    redirect-uri: http://localhost:3000/oauth/callback/kakao
+  google:
+    client-id: 706222420739-d2tmjjdu762p8619dev17trfuibjik89.apps.googleusercontent.com
+    redirect-uri: http://localhost:3000/oauth/callback/google
+
+storage:
+  type: cloudinary # local or cloudinary or s3
+  cloudinary:
+    cloud-name: gbg0jmu9
+    api-key: "643411119313758"
+    api-secret: UQnemNTZ062RmVcb0gQLUNBxOaQ
+  cdn:
+    domain: https://res.cloudinary.com/gbg0jmu9/image/upload
+  s3:
+    bucket: herstory-assets-bucket
+    region: ap-northeast-2

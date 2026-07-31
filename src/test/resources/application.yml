@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: test
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+jwt:
+  secret: c2VjcmV0S2V5Rm9ySEVSU1RPUllCYWNrZW5kQXBwbGljYXRpb25XaXRoU3VjY2Vzc2Z1bEpXVFZhbGlkYXRpb24yMDI2
+  expiration: 86400000
