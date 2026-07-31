@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-noto-sans-kr), "Noto Sans KR", sans-serif;
+
+  --color-background: #f8f9fa;
+  --color-foreground: #1a1a1a;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+  --color-muted: #f1f3f5;
+  --color-muted-foreground: #6b7280;
+  --color-border: #e9ecef;
+  --color-input: #e9ecef;
+
+  --color-primary: #7b2cbf;
+  --color-primary-foreground: #ffffff;
+  --color-accent: #ff6b6b;
+  --color-accent-foreground: #ffffff;
+
+  --color-ring: #7b2cbf;
+
+  --radius-lg: 1rem;
+  --radius-md: 0.75rem;
+  --radius-sm: 0.5rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  background-color: var(--color-background);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+}
