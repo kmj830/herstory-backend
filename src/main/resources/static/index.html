@@ -115,7 +115,7 @@
       cursor: not-allowed;
     }
 
-    /* Pipeline Step Tracker */
+    /* Tracker */
     .tracker-nav {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -159,7 +159,7 @@
       font-weight: 700;
     }
 
-    /* Pipeline Grid Layout */
+    /* Grid Layout */
     .pipeline-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -189,10 +189,7 @@
       transition: opacity 0.3s;
     }
 
-    .card-step.active-card::before {
-      opacity: 1;
-    }
-
+    .card-step.active-card::before { opacity: 1; }
     .card-step.active-card {
       border-color: rgba(255, 255, 255, 0.3);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -227,20 +224,27 @@
       color: var(--accent-cyan);
     }
 
-    /* Media Preview Box */
+    /* Media Preview Box & Dropzone */
     .preview-box {
       width: 100%;
-      height: 260px;
+      height: 250px;
       background: rgba(0, 0, 0, 0.4);
-      border: 1px stroke rgba(255, 255, 255, 0.1);
+      border: 2px dashed var(--card-border);
       border-radius: 18px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       overflow: hidden;
       position: relative;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .preview-box.drag-hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.1);
     }
 
     .preview-box img {
@@ -252,7 +256,6 @@
     model-viewer {
       width: 100%;
       height: 100%;
-      --poster-color: transparent;
     }
 
     .placeholder-text {
@@ -262,7 +265,6 @@
       padding: 20px;
     }
 
-    /* Spinner */
     .spinner {
       width: 40px;
       height: 40px;
@@ -278,7 +280,7 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Controls & Buttons inside card */
+    /* Inputs */
     .control-group {
       margin-bottom: 14px;
     }
@@ -291,7 +293,7 @@
       margin-bottom: 6px;
     }
 
-    .input-text, .select-box {
+    .input-text {
       width: 100%;
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--card-border);
@@ -302,8 +304,24 @@
       outline: none;
     }
 
-    .input-text:focus {
-      border-color: var(--accent-purple);
+    .btn-file-input {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px dashed var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-file-input:hover {
+      background: rgba(0, 242, 254, 0.3);
     }
 
     .btn-card {
@@ -323,7 +341,7 @@
       border-color: var(--accent-cyan);
     }
 
-    /* Order Result Box */
+    /* Order Summary */
     .order-summary {
       background: rgba(0, 242, 254, 0.08);
       border: 1px solid rgba(0, 242, 254, 0.3);
@@ -348,7 +366,7 @@
       margin-top: 8px;
     }
 
-    /* Toast Notification */
+    /* Toast */
     #toast {
       position: fixed;
       bottom: 30px;
@@ -407,7 +425,7 @@
     </div>
   </div>
 
-  <!-- Pipeline Cards Grid -->
+  <!-- Pipeline Grid Layout -->
   <div class="pipeline-grid">
 
     <!-- Step 1: Artwork -->
@@ -416,14 +434,25 @@
         <h2>🎨 STEP 1. 원화 등록</h2>
         <span class="badge-status" id="badgeStep1">대기 중</span>
       </div>
-      <div class="preview-box" id="previewStep1">
-        <div class="placeholder-text">아티스트 원화 이미지 예시</div>
+
+      <!-- Drag & Drop Zone -->
+      <div class="preview-box" id="previewStep1" onclick="document.getElementById('artworkFileInput').click()">
+        <div class="placeholder-text" id="dropzoneText">
+          🖼️ **이미지 파일을 여기에 드래그 앤 드롭** 하거나<br>클릭하여 내 컴퓨터에서 파일을 선택하세요.
+        </div>
       </div>
+
+      <input type="file" id="artworkFileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+      
+      <label class="btn-file-input" onclick="document.getElementById('artworkFileInput').click()">
+        📁 내 컴퓨터에서 이미지 파일 선택하기
+      </label>
+
       <div class="control-group">
         <label>원화 제목</label>
         <input type="text" id="artworkTitle" class="input-text" value="한국 전통 단청 원화">
       </div>
-      <button class="btn-card" onclick="step1UploadArtwork()">1단계: 원화 등록 실행</button>
+      <button class="btn-card" onclick="step1UploadArtwork()">1단계: 원화 업로드 실행</button>
     </div>
 
     <!-- Step 2: 2D AI Pattern -->
@@ -432,7 +461,7 @@
         <h2>🪄 STEP 2. 2D AI 패턴 (OpenAI DALL-E 3)</h2>
         <span class="badge-status" id="badgeStep2">대기 중</span>
       </div>
-      <div class="preview-box" id="previewStep2">
+      <div class="preview-box" id="previewStep2" style="border-style: solid;">
         <div class="placeholder-text">OpenAI DALL-E 3로 생성된 2D 텍스타일 패턴</div>
       </div>
       <div class="control-group">
@@ -448,7 +477,7 @@
         <h2>👗 STEP 3. 버추얼 3D 쇼룸 아이템</h2>
         <span class="badge-status" id="badgeStep3">대기 중</span>
       </div>
-      <div class="preview-box" id="previewStep3">
+      <div class="preview-box" id="previewStep3" style="border-style: solid;">
         <div class="placeholder-text">3D 의류 착장 모델 렌더링</div>
       </div>
       <div class="control-group">
@@ -464,7 +493,7 @@
         <h2>🎛️ STEP 4. 1:1 맞춤 커스터마이징</h2>
         <span class="badge-status" id="badgeStep4">대기 중</span>
       </div>
-      <div class="preview-box" id="previewStep4">
+      <div class="preview-box" id="previewStep4" style="border-style: solid;">
         <div class="placeholder-text">실시간 컬러/핏 preview</div>
       </div>
       <div class="control-group">
@@ -512,14 +541,62 @@
 <div id="toast">메시지 내용</div>
 
 <script>
-  // State variables
   let authToken = '';
+  let selectedFile = null;
   let currentArtworkId = null;
   let currentTaskId = null;
   let currentPatternId = null;
   let currentPatternUrl = null;
   let currentShowroomItemId = null;
   let currentCustomDesignId = null;
+
+  // Setup Drag & Drop Handlers
+  const dropzone = document.getElementById('previewStep1');
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('drag-hover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('drag-hover');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files && files.length > 0) {
+      handleFile(files[0]);
+    }
+  });
+
+  function handleFileSelect(e) {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFile(files[0]);
+    }
+  }
+
+  function handleFile(file) {
+    if (!file.type.startsWith('image/')) {
+      showToast('이미지 파일(PNG, JPG 등)만 업로드할 수 있습니다.');
+      return;
+    }
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      dropzone.innerHTML = `<img src="${e.target.result}" alt="선택한 원화 이미지">`;
+      showToast(`원화 이미지 파일 선택됨: ${file.name}`);
+    };
+    reader.readAsDataURL(file);
+  }
 
   function showToast(msg) {
     const toast = document.getElementById('toast');
@@ -541,13 +618,9 @@
     }
   }
 
-  // API Call helper
-  async function apiCall(endpoint, method = 'GET', body = null, isAuthRequired = true) {
+  // Helper API Call
+  async function apiCall(endpoint, method = 'GET', body = null) {
     const headers = { 'Content-Type': 'application/json' };
-    if (isAuthRequired && authToken) {
-      headers['Authorization'] = `Bearer ${authToken}`;
-    }
-
     const options = { method, headers };
     if (body) options.body = JSON.stringify(body);
 
@@ -555,30 +628,39 @@
     return await res.json();
   }
 
-  // Auth Login (Auto)
-  async function ensureAuth() {
-    if (authToken) return;
-    try {
-      const res = await apiCall('/api/v1/auth/login', 'POST', {
-        email: 'artist@herstory.com',
-        password: 'password123'
-      }, false);
-      if (res.success && res.data.accessToken) {
-        authToken = res.data.accessToken;
-      }
-    } catch (e) {
-      console.warn("로그인 시도 중...", e);
-    }
-  }
-
-  // STEP 1: Upload Artwork
+  // STEP 1: Upload Artwork (File or URL)
   async function step1UploadArtwork() {
-    await ensureAuth();
-    const title = document.getElementById('artworkTitle').value;
+    const title = document.getElementById('artworkTitle').value || '업로드 원화';
     const preview = document.getElementById('previewStep1');
 
-    preview.innerHTML = `<div class="spinner"></div><div class="placeholder-text">원화 등록 중...</div>`;
+    preview.innerHTML = `<div class="spinner"></div><div class="placeholder-text">원화 업로드 중...</div>`;
 
+    if (selectedFile) {
+      // Multipart File Upload
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', '아티스트 직접 업로드 원화 스케치');
+      formData.append('file', selectedFile);
+
+      try {
+        const res = await fetch('/api/v1/studio/artworks/upload', {
+          method: 'POST',
+          body: formData
+        }).then(r => r.json());
+
+        if (res.success && res.data) {
+          currentArtworkId = res.data.id;
+          preview.innerHTML = `<img src="${res.data.imageUrl}" alt="업로드 원화">`;
+          updateStatus(1, `업로드 완료 (ID: ${currentArtworkId})`);
+          showToast(`1단계 완료: 원화 파일 업로드 성공! (ID: ${currentArtworkId})`);
+          return res.data;
+        }
+      } catch (e) {
+        console.error("파일 업로드 오류", e);
+      }
+    }
+
+    // Default Fallback Sample Upload
     const res = await apiCall('/api/v1/studio/artworks', 'POST', {
       title: title,
       description: '한국 전통 단청 문양 원화 스케치',
@@ -588,8 +670,8 @@
     if (res.success && res.data) {
       currentArtworkId = res.data.id;
       preview.innerHTML = `<img src="${res.data.imageUrl}" alt="원화 이미지">`;
-      updateStatus(1, `완료 (ID: ${currentArtworkId})`);
-      showToast(`1단계 완료: 원화 ID ${currentArtworkId} 등록됨!`);
+      updateStatus(1, `등록 완료 (ID: ${currentArtworkId})`);
+      showToast(`1단계 완료: 원화 등록 성공! (ID: ${currentArtworkId})`);
       return res.data;
     }
   }
