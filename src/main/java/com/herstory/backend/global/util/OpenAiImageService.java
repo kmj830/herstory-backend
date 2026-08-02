@@ -31,11 +31,11 @@ public class OpenAiImageService {
         String cleanOrgId = organizationId != null ? organizationId.trim() : "";
 
         String fullPrompt = String.format(
-                "Seamless fashion textile pattern directly transformed from original artwork titled '%s' (%s). Visual style, texture and color palette based on artwork image context. Style: %s. High quality 8k digital fashion pattern.",
-                artworkTitle != null ? artworkTitle : "Artwork",
-                artworkDescription != null && !artworkDescription.isBlank() ? artworkDescription : "original art drawing",
-                userPrompt != null && !userPrompt.isBlank() ? userPrompt : "modern aesthetic"
+                "Flat 2D seamless repeating textile pattern texture, top-down view, 2D fabric swatch, abstract pattern based on '%s'. Style: %s. Strictly NO people, NO human, NO woman, NO model, NO dress, NO face, flat 2D repeating texture pattern design only.",
+                artworkTitle != null ? artworkTitle : "Korean traditional art",
+                userPrompt != null && !userPrompt.isBlank() ? userPrompt : "abstract geometry"
         );
+
 
         if (cleanApiKey.isBlank() || cleanApiKey.startsWith("sk-your")) {
             log.warn("OpenAI API Key가 설정되지 않았습니다. FLUX.1 오픈소스 AI 패턴 생성을 호출합니다.");
@@ -84,18 +84,19 @@ public class OpenAiImageService {
     private String generateFluxAiPatternUrl(String prompt) {
         try {
             String fullPrompt = String.format(
-                    "High quality seamless fashion textile pattern inspired by '%s'. Elegant 8k resolution digital fashion garment pattern.",
-                    prompt != null ? prompt : "Korean traditional fashion pattern"
+                    "Flat 2D seamless repeating textile pattern texture, top-down view, 2D fabric swatch, abstract pattern based on '%s'. Strictly NO people, NO human, NO woman, NO model, NO dress, NO face, 2D flat repeating texture design only.",
+                    prompt != null ? prompt : "Korean traditional pattern"
             );
             String encodedPrompt = java.net.URLEncoder.encode(fullPrompt, java.nio.charset.StandardCharsets.UTF_8);
-            long seed = Math.abs((prompt != null ? prompt : "pattern").hashCode()) + System.currentTimeMillis() % 1000;
+            long seed = Math.abs((prompt != null ? prompt : "pattern").hashCode()) + System.currentTimeMillis() % 10000;
             String fluxUrl = "https://image.pollinations.ai/prompt/" + encodedPrompt + "?model=flux&width=1024&height=1024&nologo=true&seed=" + seed;
-            log.info("FLUX.1 오픈소스 AI 패턴 생성 완료: URL={}", fluxUrl);
+            log.info("FLUX.1 오픈소스 2D AI 패턴 생성 완료: URL={}", fluxUrl);
             return fluxUrl;
         } catch (Exception e) {
             log.error("FLUX.1 URL 생성 실패: {}", e.getMessage());
             return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
         }
     }
+
 }
 
