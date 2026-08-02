@@ -76,12 +76,24 @@ public class OpenAiImageService {
             log.error("OpenAI DALL-E 3 이미지 생성 일반 실패: {}", e.getMessage(), e);
         }
 
-        return generateFallbackPatternUrl(userPrompt != null ? userPrompt : artworkTitle);
+        return generateFluxAiPatternUrl(userPrompt != null ? userPrompt : artworkTitle);
     }
 
-    private String generateFallbackPatternUrl(String prompt) {
-        int seed = Math.abs((prompt != null ? prompt : "pattern").hashCode());
-        return "https://picsum.photos/seed/" + seed + "/800/800";
+    private String generateFluxAiPatternUrl(String prompt) {
+        try {
+            String fullPrompt = String.format(
+                    "High quality seamless fashion textile pattern inspired by '%s'. Elegant 8k resolution digital fashion garment pattern.",
+                    prompt != null ? prompt : "Korean traditional fashion pattern"
+            );
+            String encodedPrompt = java.net.URLEncoder.encode(fullPrompt, java.nio.charset.StandardCharsets.UTF_8);
+            long seed = Math.abs((prompt != null ? prompt : "pattern").hashCode()) + System.currentTimeMillis() % 1000;
+            String fluxUrl = "https://image.pollinations.ai/prompt/" + encodedPrompt + "?model=flux&width=1024&height=1024&nologo=true&seed=" + seed;
+            log.info("FLUX.1 오픈소스 AI 패턴 생성 완료: URL={}", fluxUrl);
+            return fluxUrl;
+        } catch (Exception e) {
+            log.error("FLUX.1 URL 생성 실패: {}", e.getMessage());
+            return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
+        }
     }
-
 }
+
