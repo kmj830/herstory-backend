@@ -24,8 +24,9 @@ public class AiPattern extends BaseTimeEntity {
     @Column(nullable = false)
     private String patternName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2000)
     private String patternImageUrl;
+
 
     private String prompt;
 

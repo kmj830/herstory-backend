@@ -29,7 +29,9 @@ public class AiPatternTask extends BaseTimeEntity {
     @Column(nullable = false)
     private PatternTaskStatus status;
 
+    @Column(length = 2000)
     private String resultImageUrl;
+
 
     private String errorMessage;
 

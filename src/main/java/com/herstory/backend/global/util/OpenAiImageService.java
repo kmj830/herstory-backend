@@ -31,9 +31,10 @@ public class OpenAiImageService {
         String cleanOrgId = organizationId != null ? organizationId.trim() : "";
 
         if (cleanApiKey.isBlank() || cleanApiKey.startsWith("sk-your")) {
-            log.warn("OpenAI API Key가 설정되지 않았습니다. (cleanApiKey='{}') 기본 패턴 이미지를 반환합니다.", cleanApiKey);
-            return generateFallbackPatternUrl(artworkTitle);
+            log.warn("OpenAI API Key가 설정되지 않았습니다. FLUX.1 오픈소스 AI 패턴 생성을 호출합니다.");
+            return generateFluxAiPatternUrl(userPrompt != null ? userPrompt : artworkTitle);
         }
+
 
         String fullPrompt = String.format(
                 "High quality seamless fashion textile pattern inspired by artwork titled '%s'. Style: %s. Suitable for high-end digital fashion garments and 3D showroom.",
