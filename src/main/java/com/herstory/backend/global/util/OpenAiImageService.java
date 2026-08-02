@@ -15,10 +15,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OpenAiImageService {
 
-    @Value("${openai.api-key:}")
+    @Value("${OPENAI_API_KEY:${openai.api-key:}}")
     private String apiKey;
 
-    @Value("${openai.organization-id:}")
+    @Value("${OPENAI_ORGANIZATION_ID:${openai.organization-id:}}")
     private String organizationId;
 
     @Value("${openai.model:dall-e-3}")
@@ -27,8 +27,11 @@ public class OpenAiImageService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String generateFashionPatternImage(String artworkTitle, String userPrompt) {
-        if (apiKey == null || apiKey.isBlank() || apiKey.startsWith("sk-your")) {
-            log.warn("OpenAI API Key가 설정되지 않았습니다. 기본 패턴 이미지를 반환합니다.");
+        String cleanApiKey = apiKey != null ? apiKey.trim() : "";
+        String cleanOrgId = organizationId != null ? organizationId.trim() : "";
+
+        if (cleanApiKey.isBlank() || cleanApiKey.startsWith("sk-your")) {
+            log.warn("OpenAI API Key가 설정되지 않았습니다. (cleanApiKey='{}') 기본 패턴 이미지를 반환합니다.", cleanApiKey);
             return generateFallbackPatternUrl(artworkTitle);
         }
 
@@ -43,9 +46,9 @@ public class OpenAiImageService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
-            if (organizationId != null && !organizationId.isBlank()) {
-                headers.set("OpenAI-Organization", organizationId);
+            headers.setBearerAuth(cleanApiKey);
+            if (!cleanOrgId.isBlank()) {
+                headers.set("OpenAI-Organization", cleanOrgId);
             }
 
             Map<String, Object> body = Map.of(
@@ -56,7 +59,7 @@ public class OpenAiImageService {
             );
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-            log.info("OpenAI DALL-E 3 패턴 생성 요청 시작: prompt='{}'", fullPrompt);
+            log.info("OpenAI DALL-E 3 패턴 생성 요청 시작: model={}, org={}, prompt='{}'", model, cleanOrgId, fullPrompt);
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -67,12 +70,15 @@ public class OpenAiImageService {
                     return imageUrl;
                 }
             }
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            log.error("OpenAI API 호출 실패 HttpStatusCodeException: status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
         } catch (Exception e) {
-            log.error("OpenAI DALL-E 3 이미지 생성 실패 (폴백 이미지 적용): {}", e.getMessage());
+            log.error("OpenAI DALL-E 3 이미지 생성 일반 실패: {}", e.getMessage(), e);
         }
 
         return generateFallbackPatternUrl(artworkTitle);
     }
+
 
     private String generateFallbackPatternUrl(String title) {
         return "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80";
