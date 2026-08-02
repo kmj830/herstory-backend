@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HER-STORY | AI & 3D Fashion Pipeline Demo</title>
+  <!-- Google Fonts & Model Viewer for 3D Rendering -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f0c20 0%, #1a103c 50%, #2b0b3a 100%);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --accent-pink: #ff2a85;
+      --accent-purple: #9d4edd;
+      --accent-cyan: #00f2fe;
+      --text-main: #ffffff;
+      --text-sub: #b3b0cd;
+      --glow-pink: 0 0 25px rgba(255, 42, 133, 0.4);
+      --glow-cyan: 0 0 25px rgba(0, 242, 254, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 30px 20px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* Header & Banner */
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .badge-tag {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 30px;
+      background: rgba(255, 42, 133, 0.15);
+      border: 1px solid var(--accent-pink);
+      color: var(--accent-pink);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #ffffff, #ff75c3, #00f2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      color: var(--text-sub);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto 25px;
+      line-height: 1.6;
+    }
+
+    /* Auto Run Action Button */
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+
+    .btn-auto-run {
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      color: white;
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      box-shadow: var(--glow-pink);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-auto-run:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 0 35px rgba(255, 42, 133, 0.7);
+    }
+
+    .btn-auto-run:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Pipeline Step Tracker */
+    .tracker-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 35px;
+    }
+
+    .step-indicator {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 14px 10px;
+      border-radius: 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .step-indicator.active {
+      border-color: var(--accent-cyan);
+      box-shadow: var(--glow-cyan);
+      background: rgba(0, 242, 254, 0.1);
+    }
+
+    .step-indicator.completed {
+      border-color: var(--accent-pink);
+      background: rgba(255, 42, 133, 0.1);
+    }
+
+    .step-num {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+
+    .step-indicator.active .step-num { color: var(--accent-cyan); }
+    .step-indicator.completed .step-num { color: var(--accent-pink); }
+
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    /* Pipeline Grid Layout */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+    }
+
+    .card-step {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 25px;
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-step::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card-step.active-card::before {
+      opacity: 1;
+    }
+
+    .card-step.active-card {
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-sub);
+    }
+
+    .badge-status.success {
+      background: rgba(0, 242, 254, 0.2);
+      color: var(--accent-cyan);
+    }
+
+    /* Media Preview Box */
+    .preview-box {
+      width: 100%;
+      height: 260px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px stroke rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+    }
+
+    .placeholder-text {
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top: 4px solid var(--accent-pink);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Controls & Buttons inside card */
+    .control-group {
+      margin-bottom: 14px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .input-text, .select-box {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .input-text:focus {
+      border-color: var(--accent-purple);
+    }
+
+    .btn-card {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--card-border);
+      color: white;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-card:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--accent-cyan);
+    }
+
+    /* Order Result Box */
+    .order-summary {
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 16px;
+      border-radius: 14px;
+      margin-top: 15px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .summary-row.total {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--accent-cyan);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(15, 12, 32, 0.95);
+      border: 1px solid var(--accent-pink);
+      box-shadow: var(--glow-pink);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-weight: 600;
+      display: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header>
+    <div class="badge-tag">HER-STORY Hackathon Demo</div>
+    <h1>Generative AI & 3D Fashion Pipeline</h1>
+    <p class="subtitle">
+      원화 스케치 등록부터 OpenAI DALL-E 3 기반 2D AI 텍스타일 패턴 생성, 버추얼 3D 의류 쇼룸 랩핑, 1:1 맞춤 커스터마이징 및 아티스트 후원 주문까지의 전체 시나리오를 한눈에 체험하세요.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn-auto-run" id="btnAutoRun" onclick="runAutoPipeline()">
+        <span>🚀 원클릭 전체 자동 시연 (Auto Test)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Step Nav Bar -->
+  <div class="tracker-nav">
+    <div class="step-indicator" id="navStep1">
+      <div class="step-num">STEP 01</div>
+      <div class="step-title">🎨 원화 등록</div>
+    </div>
+    <div class="step-indicator" id="navStep2">
+      <div class="step-num">STEP 02</div>
+      <div class="step-title">🪄 2D AI 패턴</div>
+    </div>
+    <div class="step-indicator" id="navStep3">
+      <div class="step-num">STEP 03</div>
+      <div class="step-title">👗 3D 쇼룸</div>
+    </div>
+    <div class="step-indicator" id="navStep4">
+      <div class="step-num">STEP 04</div>
+      <div class="step-title">🎛️ 1:1 커스텀</div>
+    </div>
+    <div class="step-indicator" id="navStep5">
+      <div class="step-num">STEP 05</div>
+      <div class="step-title">💝 후원 & 결제</div>
+    </div>
+  </div>
+
+  <!-- Pipeline Cards Grid -->
+  <div class="pipeline-grid">
+
+    <!-- Step 1: Artwork -->
+    <div class="card-step" id="cardStep1">
+      <div class="card-header">
+        <h2>🎨 STEP 1. 원화 등록</h2>
+        <span class="badge-status" id="badgeStep1">대기 중</span>
+      </div>
+      <div class="preview-box" id="previewStep1">
+        <div class="placeholder-text">아티스트 원화 이미지 예시</div>
+      </div>
+      <div class="control-group">
+        <label>원화 제목</label>
+        <input type="text" id="artworkTitle" class="input-text" value="한국 전통 단청 원화">
+      </div>
+      <button class="btn-card" onclick="step1UploadArtwork()">1단계: 원화 등록 실행</button>
+    </div>
+
+    <!-- Step 2: 2D AI Pattern -->
+    <div class="card-step" id="cardStep2">
+      <div class="card-header">
+        <h2>🪄 STEP 2. 2D AI 패턴 (OpenAI DALL-E 3)</h2>
+        <span class="badge-status" id="badgeStep2">대기 중</span>
+      </div>
+      <div class="preview-box" id="previewStep2">
+        <div class="placeholder-text">OpenAI DALL-E 3로 생성된 2D 텍스타일 패턴</div>
+      </div>
+      <div class="control-group">
+        <label>AI 프롬프트</label>
+        <input type="text" id="patternPrompt" class="input-text" value="Modern Korean traditional Dancheong seamless textile fashion pattern">
+      </div>
+      <button class="btn-card" onclick="step2GeneratePattern()">2단계: 2D AI 패턴 생성 실행</button>
+    </div>
+
+    <!-- Step 3: 3D Showroom -->
+    <div class="card-step" id="cardStep3">
+      <div class="card-header">
+        <h2>👗 STEP 3. 버추얼 3D 쇼룸 아이템</h2>
+        <span class="badge-status" id="badgeStep3">대기 중</span>
+      </div>
+      <div class="preview-box" id="previewStep3">
+        <div class="placeholder-text">3D 의류 착장 모델 렌더링</div>
+      </div>
+      <div class="control-group">
+        <label>상품명</label>
+        <input type="text" id="itemTitle" class="input-text" value="단청 AI 커스텀 3D 패션 자켓">
+      </div>
+      <button class="btn-card" onclick="step3RegisterShowroomItem()">3단계: 3D 쇼룸 상품 등록 실행</button>
+    </div>
+
+    <!-- Step 4: 1:1 Customization -->
+    <div class="card-step" id="cardStep4">
+      <div class="card-header">
+        <h2>🎛️ STEP 4. 1:1 맞춤 커스터마이징</h2>
+        <span class="badge-status" id="badgeStep4">대기 중</span>
+      </div>
+      <div class="preview-box" id="previewStep4">
+        <div class="placeholder-text">실시간 컬러/핏 preview</div>
+      </div>
+      <div class="control-group">
+        <label>커스텀 의류 컬러</label>
+        <input type="color" id="customColor" class="input-text" value="#2c3e50" style="height: 42px; padding: 4px;">
+      </div>
+      <button class="btn-card" onclick="step4CreateCustomDesign()">4단계: 1:1 커스텀 생성 실행</button>
+    </div>
+
+    <!-- Step 5: Order & Sponsorship -->
+    <div class="card-step" id="cardStep5">
+      <div class="card-header">
+        <h2>💝 STEP 5. 후원 & 시뮬레이션 결제</h2>
+        <span class="badge-status" id="badgeStep5">대기 중</span>
+      </div>
+      <div class="control-group">
+        <label>아티스트 추가 후원금 (KRW)</label>
+        <input type="number" id="sponsorAmount" class="input-text" value="30000" step="5000">
+      </div>
+      <button class="btn-card" onclick="step5PlaceOrder()">5단계: 아티스트 후원 & 주문 완료</button>
+
+      <div class="order-summary" id="orderSummary" style="display: none;">
+        <div class="summary-row">
+          <span>의류 상품가</span>
+          <span id="summaryItemPrice">₩320,000</span>
+        </div>
+        <div class="summary-row">
+          <span>아티스트 후원금</span>
+          <span id="summarySponsor">₩30,000</span>
+        </div>
+        <div class="summary-row total">
+          <span>총 결제금액</span>
+          <span id="summaryTotal">₩350,000</span>
+        </div>
+        <div style="margin-top: 10px; font-size: 0.8rem; color: var(--accent-cyan); text-align: center;">
+          📜 디지털 보증서(NFT 메타데이터) 발급 완료!
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast">메시지 내용</div>
+
+<script>
+  // State variables
+  let authToken = '';
+  let currentArtworkId = null;
+  let currentTaskId = null;
+  let currentPatternId = null;
+  let currentPatternUrl = null;
+  let currentShowroomItemId = null;
+  let currentCustomDesignId = null;
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3500);
+  }
+
+  function updateStatus(stepNum, statusText, isSuccess = true) {
+    const badge = document.getElementById(`badgeStep${stepNum}`);
+    const nav = document.getElementById(`navStep${stepNum}`);
+    const card = document.getElementById(`cardStep${stepNum}`);
+
+    badge.innerText = statusText;
+    if (isSuccess) {
+      badge.classList.add('success');
+      nav.classList.add('completed');
+      card.classList.add('active-card');
+    }
+  }
+
+  // API Call helper
+  async function apiCall(endpoint, method = 'GET', body = null, isAuthRequired = true) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (isAuthRequired && authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    const options = { method, headers };
+    if (body) options.body = JSON.stringify(body);
+
+    const res = await fetch(endpoint, options);
+    return await res.json();
+  }
+
+  // Auth Login (Auto)
+  async function ensureAuth() {
+    if (authToken) return;
+    try {
+      const res = await apiCall('/api/v1/auth/login', 'POST', {
+        email: 'artist@herstory.com',
+        password: 'password123'
+      }, false);
+      if (res.success && res.data.accessToken) {
+        authToken = res.data.accessToken;
+      }
+    } catch (e) {
+      console.warn("로그인 시도 중...", e);
+    }
+  }
+
+  // STEP 1: Upload Artwork
+  async function step1UploadArtwork() {
+    await ensureAuth();
+    const title = document.getElementById('artworkTitle').value;
+    const preview = document.getElementById('previewStep1');
+
+    preview.innerHTML = `<div class="spinner"></div><div class="placeholder-text">원화 등록 중...</div>`;
+
+    const res = await apiCall('/api/v1/studio/artworks', 'POST', {
+      title: title,
+      description: '한국 전통 단청 문양 원화 스케치',
+      imageUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80'
+    });
+
+    if (res.success && res.data) {
+      currentArtworkId = res.data.id;
+      preview.innerHTML = `<img src="${res.data.imageUrl}" alt="원화 이미지">`;
+      updateStatus(1, `완료 (ID: ${currentArtworkId})`);
+      showToast(`1단계 완료: 원화 ID ${currentArtworkId} 등록됨!`);
+      return res.data;
+    }
+  }
+
+  // STEP 2: Generate 2D AI Pattern
+  async function step2GeneratePattern() {
+    if (!currentArtworkId) await step1UploadArtwork();
+    const prompt = document.getElementById('patternPrompt').value;
+    const preview = document.getElementById('previewStep2');
+
+    preview.innerHTML = `<div class="spinner"></div><div class="placeholder-text">OpenAI DALL-E 3 패턴 생성 중...</div>`;
+
+    const res = await apiCall('/api/v1/studio/patterns/generate', 'POST', {
+      artworkId: currentArtworkId,
+      patternName: '단청 현대 텍스타일 패턴',
+      prompt: prompt
+    });
+
+    if (res.success && res.data) {
+      currentTaskId = res.data.taskId;
+
+      // Poll task status
+      let attempts = 0;
+      while (attempts < 15) {
+        await new Promise(r => setTimeout(r, 1500));
+        const taskRes = await apiCall(`/api/v1/studio/patterns/tasks/${currentTaskId}`);
+        if (taskRes.success && taskRes.data.status === 'COMPLETED') {
+          currentPatternUrl = taskRes.data.resultImageUrl;
+          currentPatternId = taskRes.data.generatedPatternId || 1;
+          preview.innerHTML = `<img src="${currentPatternUrl}" alt="2D AI 패턴">`;
+          updateStatus(2, `생성 완료 (ID: ${currentPatternId})`);
+          showToast(`2단계 완료: OpenAI DALL-E 3 2D 패턴 생성 성공!`);
+          return taskRes.data;
+        }
+        attempts++;
+      }
+    }
+  }
+
+  // STEP 3: Register 3D Showroom Item
+  async function step3RegisterShowroomItem() {
+    if (!currentPatternId) await step2GeneratePattern();
+    const title = document.getElementById('itemTitle').value;
+    const preview = document.getElementById('previewStep3');
+
+    preview.innerHTML = `
+      <model-viewer
+        src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+        alt="3D Showroom Item"
+        auto-rotate
+        camera-controls
+        ar>
+      </model-viewer>
+    `;
+
+    const res = await apiCall('/api/v1/showroom/items', 'POST', {
+      aiPatternId: currentPatternId,
+      title: title,
+      description: 'OpenAI 2D 패턴이 3D 텍스처로 랩핑된 의류 상품',
+      price: 320000,
+      category: 'DRESS',
+      model3dUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
+    });
+
+    if (res.success && res.data) {
+      currentShowroomItemId = res.data.id;
+      updateStatus(3, `등록 완료 (ID: ${currentShowroomItemId})`);
+      showToast(`3단계 완료: 3D 쇼룸 아이템 ID ${currentShowroomItemId} 등록됨!`);
+      return res.data;
+    }
+  }
+
+  // STEP 4: 1:1 Customization
+  async function step4CreateCustomDesign() {
+    if (!currentShowroomItemId) await step3RegisterShowroomItem();
+    const color = document.getElementById('customColor').value;
+    const preview = document.getElementById('previewStep4');
+
+    preview.innerHTML = `
+      <div style="background:${color}; width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+        <span style="font-size:2.5rem;">👗</span>
+        <span style="margin-top:10px; font-weight:700;">커스텀 컬러: ${color}</span>
+      </div>
+    `;
+
+    const res = await apiCall('/api/v1/showroom/custom', 'POST', {
+      showroomItemId: currentShowroomItemId,
+      customColor: color,
+      fitSize: 'SLIM',
+      patternTransformJson: '{"scale":1.2,"rotation":30,"positionX":0.1,"positionY":0.3}'
+    });
+
+    if (res.success && res.data) {
+      currentCustomDesignId = res.data.id;
+      updateStatus(4, `커스텀 완료 (ID: ${currentCustomDesignId})`);
+      showToast(`4단계 완료: 1:1 맞춤 커스텀 디자인 ID ${currentCustomDesignId} 생성!`);
+      return res.data;
+    }
+  }
+
+  // STEP 5: Place Order & Sponsorship
+  async function step5PlaceOrder() {
+    if (!currentCustomDesignId) await step4CreateCustomDesign();
+    const sponsorAmt = parseInt(document.getElementById('sponsorAmount').value) || 30000;
+    const itemPrice = 320000;
+    const totalPrice = itemPrice + sponsorAmt;
+
+    const res = await apiCall('/api/v1/showroom/orders', 'POST', {
+      customDesignId: currentCustomDesignId,
+      sponsorshipAmount: sponsorAmt,
+      shippingAddress: '서울특별시 강남구 테헤란로 123',
+      recipientName: '김민정',
+      recipientPhone: '010-1234-5678'
+    });
+
+    if (res.success && res.data) {
+      updateStatus(5, '주문 및 결제 완료');
+      document.getElementById('summaryItemPrice').innerText = `₩${itemPrice.toLocaleString()}`;
+      document.getElementById('summarySponsor').innerText = `₩${sponsorAmt.toLocaleString()}`;
+      document.getElementById('summaryTotal').innerText = `₩${totalPrice.toLocaleString()}`;
+      document.getElementById('orderSummary').style.display = 'block';
+
+      showToast(`🎉 5단계 완료: 주문 성공! 아티스트 후원금 ₩${sponsorAmt.toLocaleString()} 전달됨!`);
+    }
+  }
+
+  // AUTO PIPELINE RUNNER
+  async function runAutoPipeline() {
+    const btn = document.getElementById('btnAutoRun');
+    btn.disabled = true;
+    btn.innerHTML = `<span>⏳ 시연 파이프라인 자동 실행 중...</span>`;
+
+    try {
+      showToast('🚀 원클릭 시연 파이프라인 시작!');
+      await step1UploadArtwork();
+      await new Promise(r => setTimeout(r, 800));
+      await step2GeneratePattern();
+      await new Promise(r => setTimeout(r, 800));
+      await step3RegisterShowroomItem();
+      await new Promise(r => setTimeout(r, 800));
+      await step4CreateCustomDesign();
+      await new Promise(r => setTimeout(r, 800));
+      await step5PlaceOrder();
+
+      showToast('🎉 전체 원화 -> 2D AI -> 3D 쇼룸 -> 주문 파이프라인 시연 성공!');
+    } catch (e) {
+      console.error(e);
+      showToast('시연 중 오류가 발생했습니다: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<span>🚀 원클릭 전체 자동 시연 (Auto Test)</span>`;
+    }
+  }
+</script>
+</body>
+</html>
