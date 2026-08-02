@@ -81,6 +81,7 @@ public class OpenAiImageService {
 
 
     private String generateFallbackPatternUrl(String title) {
-        return "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80";
+        return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
     }
+
 }
