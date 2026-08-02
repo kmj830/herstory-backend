@@ -76,12 +76,12 @@ public class OpenAiImageService {
             log.error("OpenAI DALL-E 3 이미지 생성 일반 실패: {}", e.getMessage(), e);
         }
 
-        return generateFallbackPatternUrl(artworkTitle);
+        return generateFallbackPatternUrl(userPrompt != null ? userPrompt : artworkTitle);
     }
 
-
-    private String generateFallbackPatternUrl(String title) {
-        return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
+    private String generateFallbackPatternUrl(String prompt) {
+        int seed = Math.abs((prompt != null ? prompt : "pattern").hashCode());
+        return "https://picsum.photos/seed/" + seed + "/800/800";
     }
 
 }
