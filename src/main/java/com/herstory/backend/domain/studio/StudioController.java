@@ -28,7 +28,8 @@ public class StudioController {
     public ResponseEntity<ApiResponse<ArtworkResponse>> uploadArtwork(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody ArtworkUploadRequest request) {
-        ArtworkResponse response = studioService.uploadArtwork(userPrincipal.getId(), request);
+        Long artistId = userPrincipal != null ? userPrincipal.getId() : 1L;
+        ArtworkResponse response = studioService.uploadArtwork(artistId, request);
         return ResponseEntity.ok(ApiResponse.success("원화 업로드 성공", response));
     }
 
@@ -39,7 +40,8 @@ public class StudioController {
             @RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
             @RequestPart("file") MultipartFile file) {
-        ArtworkResponse response = studioService.uploadArtworkWithFile(userPrincipal.getId(), title, description, file);
+        Long artistId = userPrincipal != null ? userPrincipal.getId() : 1L;
+        ArtworkResponse response = studioService.uploadArtworkWithFile(artistId, title, description, file);
         return ResponseEntity.ok(ApiResponse.success("원화 파일 업로드 성공", response));
     }
 
@@ -70,7 +72,8 @@ public class StudioController {
     @GetMapping("/artworks/my")
     public ResponseEntity<ApiResponse<List<ArtworkResponse>>> getMyArtworks(
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<ArtworkResponse> response = studioService.getArtistArtworks(userPrincipal.getId());
+        Long artistId = userPrincipal != null ? userPrincipal.getId() : 1L;
+        List<ArtworkResponse> response = studioService.getArtistArtworks(artistId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

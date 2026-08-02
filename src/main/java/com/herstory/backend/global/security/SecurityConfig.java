@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/favicon.ico", "/api/v1/auth/**", "/h2-console/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/v1/home/**").permitAll()
-                        .requestMatchers("/api/v1/studio/**").hasAnyRole("ARTIST", "ADMIN")
+                        .requestMatchers("/api/v1/studio/**").permitAll()
                         .requestMatchers("/api/v1/showroom/**").permitAll()
                         .requestMatchers("/api/v1/royalty/**").permitAll()
                         .requestMatchers("/api/v1/o2o/**").permitAll()
