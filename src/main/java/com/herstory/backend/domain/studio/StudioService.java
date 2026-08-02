@@ -88,8 +88,13 @@ public class StudioService {
             task.updateStatus(PatternTaskStatus.IN_PROGRESS);
             aiPatternTaskRepository.save(task);
 
-            String artworkTitle = task.getArtwork() != null ? task.getArtwork().getTitle() : "Original Artwork";
-            String generatedPatternUrl = openAiImageService.generateFashionPatternImage(artworkTitle, task.getPrompt());
+            Artwork artwork = task.getArtwork();
+            String artworkTitle = artwork != null ? artwork.getTitle() : "Original Artwork";
+            String artworkDesc = artwork != null ? artwork.getDescription() : "";
+            String artworkUrl = artwork != null ? artwork.getImageUrl() : "";
+
+            String generatedPatternUrl = openAiImageService.generateFashionPatternImage(artworkTitle, artworkDesc, artworkUrl, task.getPrompt());
+
 
             AiPattern pattern = AiPattern.builder()
                     .artwork(task.getArtwork())

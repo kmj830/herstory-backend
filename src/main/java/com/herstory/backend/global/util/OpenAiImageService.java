@@ -26,21 +26,22 @@ public class OpenAiImageService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public String generateFashionPatternImage(String artworkTitle, String userPrompt) {
+    public String generateFashionPatternImage(String artworkTitle, String artworkDescription, String artworkImageUrl, String userPrompt) {
         String cleanApiKey = apiKey != null ? apiKey.trim() : "";
         String cleanOrgId = organizationId != null ? organizationId.trim() : "";
 
+        String fullPrompt = String.format(
+                "Seamless fashion textile pattern directly transformed from original artwork titled '%s' (%s). Visual style, texture and color palette based on artwork image context. Style: %s. High quality 8k digital fashion pattern.",
+                artworkTitle != null ? artworkTitle : "Artwork",
+                artworkDescription != null && !artworkDescription.isBlank() ? artworkDescription : "original art drawing",
+                userPrompt != null && !userPrompt.isBlank() ? userPrompt : "modern aesthetic"
+        );
+
         if (cleanApiKey.isBlank() || cleanApiKey.startsWith("sk-your")) {
             log.warn("OpenAI API Key가 설정되지 않았습니다. FLUX.1 오픈소스 AI 패턴 생성을 호출합니다.");
-            return generateFluxAiPatternUrl(userPrompt != null ? userPrompt : artworkTitle);
+            return generateFluxAiPatternUrl(fullPrompt);
         }
 
-
-        String fullPrompt = String.format(
-                "High quality seamless fashion textile pattern inspired by artwork titled '%s'. Style: %s. Suitable for high-end digital fashion garments and 3D showroom.",
-                artworkTitle != null ? artworkTitle : "Artwork",
-                userPrompt != null && !userPrompt.isBlank() ? userPrompt : "elegant modern aesthetic"
-        );
 
         try {
             String url = "https://api.openai.com/v1/images/generations";
