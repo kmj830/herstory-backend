@@ -304,6 +304,25 @@
       outline: none;
     }
 
+    .btn-chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-sub);
+      padding: 5px 10px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-chip:hover {
+      background: rgba(0, 242, 254, 0.2);
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+    }
+
+
     .btn-file-input {
       display: inline-block;
       width: 100%;
@@ -465,9 +484,16 @@
         <div class="placeholder-text">OpenAI DALL-E 3로 생성된 2D 텍스타일 패턴</div>
       </div>
       <div class="control-group">
-        <label>AI 프롬프트</label>
+        <label>AI 프롬프트 (아래 태그를 클릭하여 원클릭 선택 가능)</label>
+        <div class="prompt-chips" style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn-chip" onclick="setPrompt('Modern Korean traditional Dancheong seamless textile fashion pattern')">🎨 단청 전통</button>
+          <button type="button" class="btn-chip" onclick="setPrompt('Oriental ink flow pattern on luxurious silk fabric soft gradient')">🌸 수묵화 실크</button>
+          <button type="button" class="btn-chip" onclick="setPrompt('Cyberpunk neon Korean traditional pattern high quality 8k fashion')">⚡ 네온 사이버</button>
+          <button type="button" class="btn-chip" onclick="setPrompt('Sustainable modern geometric patchwork textile pattern soft pastel')">🧩 조각보 파스텔</button>
+        </div>
         <input type="text" id="patternPrompt" class="input-text" value="Modern Korean traditional Dancheong seamless textile fashion pattern">
       </div>
+
       <button class="btn-card" onclick="step2GeneratePattern()">2단계: 2D AI 패턴 생성 실행</button>
     </div>
 
@@ -583,6 +609,12 @@
       handleFile(files[0]);
     }
   }
+
+  function setPrompt(text) {
+    document.getElementById('patternPrompt').value = text;
+    showToast('프롬프트 적용 완료: ' + text);
+  }
+
 
   function handleFile(file) {
     if (!file.type.startsWith('image/')) {
