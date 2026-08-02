@@ -44,3 +44,10 @@ storage:
   s3:
     bucket: herstory-assets-bucket
     region: ap-northeast-2
+
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  organization-id: ${OPENAI_ORGANIZATION_ID:org-KQVbo1fBjZKhAP06VinchAmy}
+  model: dall-e-3
+
+

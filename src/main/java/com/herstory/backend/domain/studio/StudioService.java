@@ -4,6 +4,7 @@ import com.herstory.backend.domain.studio.dto.*;
 import com.herstory.backend.domain.user.User;
 import com.herstory.backend.domain.user.UserRepository;
 import com.herstory.backend.global.util.FileStorageService;
+import com.herstory.backend.global.util.OpenAiImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class StudioService {
     private final AiPatternTaskRepository aiPatternTaskRepository;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
+    private final OpenAiImageService openAiImageService;
 
     @Transactional
     public ArtworkResponse uploadArtwork(Long artistId, ArtworkUploadRequest request) {
@@ -86,27 +88,22 @@ public class StudioService {
             task.updateStatus(PatternTaskStatus.IN_PROGRESS);
             aiPatternTaskRepository.save(task);
 
-            // Simulate external AI engine delay / callback
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-
-            String mockPatternUrl = "/uploads/patterns/pattern_" + System.currentTimeMillis() + ".png";
+            String artworkTitle = task.getArtwork() != null ? task.getArtwork().getTitle() : "Original Artwork";
+            String generatedPatternUrl = openAiImageService.generateFashionPatternImage(artworkTitle, task.getPrompt());
 
             AiPattern pattern = AiPattern.builder()
                     .artwork(task.getArtwork())
                     .patternName(task.getPatternName())
-                    .patternImageUrl(mockPatternUrl)
+                    .patternImageUrl(generatedPatternUrl)
                     .prompt(task.getPrompt())
                     .build();
 
             AiPattern savedPattern = aiPatternRepository.save(pattern);
-            task.markAsCompleted(mockPatternUrl, savedPattern);
+            task.markAsCompleted(generatedPatternUrl, savedPattern);
             aiPatternTaskRepository.save(task);
         });
     }
+
 
     @Transactional
     public PatternTaskResponse handlePatternCallback(PatternCallbackRequest callbackRequest) {
